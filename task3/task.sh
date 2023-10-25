@@ -6,16 +6,13 @@ total_employees=$(cat Employees.csv | tail -n +2 | wc -l)
 echo "Total number of employees: $total_employees"
 
 it_employees_count=$(awk -F',' '$6 == "IT" {print $1}' Employees.csv | wc -l)
-echo "Date: $(date)" > company_info/IT_employees_count.txt
 echo "IT Employees Count: $it_employees_count" >> company_info/IT_employees_count.txt
 
 average_age=$(awk -F',' 'NR>1 {sum+=$2} END {print sum/NR}' Employees.csv)
-echo "Date: $(date)" > company_info/employees_age_average.txt
 echo "Average Age: $average_age" >> company_info/employees_age_average.txt
 
 max_salary=$(awk -F',' '$6 == "Technology" {print $5, $1, $3, $4}' Employees.csv | sort -k1 -n | tail -n 1)
 min_salary=$(awk -F',' '$6 == "Technology" {print $5, $1, $3, $4}' Employees.csv | sort -k1 -n | head -n 1)
-echo "Date: $(date)" > company_info/technology_salaries.txt
 echo "Max Salary: $max_salary" >> company_info/technology_salaries.txt
 echo "Min Salary: $min_salary" >> company_info/technology_salaries.txt
 
