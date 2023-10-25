@@ -1,0 +1,99 @@
+--1. Which movies are supplied by "Joe's House of Video" or "Video Warehouse"?
+SELECT Movies.*
+FROM Movies
+JOIN MovieSupplier
+	ON movies.MovieID = MovieSupplier.MovieID
+JOIN Suppliers
+	ON MovieSupplier.SupplierID = Suppliers.SupplierID
+WHERE SupplierName = "Joe's House of Video" OR "Video Warehouse";
+
+--2. Which movie was rented for the longest duration (by any customer)?
+SELECT Movies.*
+FROM Movies
+JOIN Inventory
+	ON Movies.MovieID = Inventory.MovieID
+JOIN Rentals
+	ON Rentals.TapeID = Inventory.TapeID
+WHERE Duration LIKE "%longest%";
+
+--3. Which suppliers supply all the movies in the inventory? 
+--(Hint: first get a list of the movie suppliers and all the movies in the inventory 
+--using the cross product. Then find out which of these tuples are invalid.)
+SELECT Suppliers.*
+FROM MovieSupplier
+Full Outer JOIN Suppliers
+	ON MovieSupplier.SupplierID = Suppliers.SupplierID
+
+--4. How many movies in the inventory does each movie supplier supply? 
+--That is, for each movie supplier, calculate the number of movies it supplies 
+--that also happen to be movies in the inventory.
+SELECT COUNT(Movies.MovieID) AS Number_of_Movies
+FROM MovieSupplier
+JOIN Suppliers
+	ON MovieSupplier.SupplierID = Suppliers.SupplierID
+	
+--5. For which movies have more than 4 copies been ordered?
+SELECT Movies.*
+FROM Movies
+JOIN Orders
+	ON Movies.MovieID = Orders.MovieID
+WHERE Copies > 4;
+	
+--6. Which customers rented "Fatal Attraction 1987" or rented a movie supplied by "VWS Video"?
+SELECT Customers.*
+FROM Customers 
+JOIN Rentals  
+	ON Customers.CustID = Rentals.CustomerID
+JOIN Inventory 
+	ON Rentals.TapeID = Inventory.TapeID
+JOIN Movies 
+	ON Inventory.MovieID = Movies.MovieID
+LEFT JOIN MovieSupplier 
+	ON Movies.MovieID = MovieSupplier.MovieID
+LEFT JOIN Suppliers  
+	ON MovieSupplier.SupplierID = Suppliers.SupplierID
+WHERE Movies.MovieName = 'Fatal Attraction 1987' OR S.SupplierName = 'VWS Video';
+
+--7. For which movies are there more than 1 copy in our inventory? 
+--(Note that the TapeID in inventory is different for different copies of the same MovieID)
+SELECT Movies.MovieName
+FROM Movies 
+JOIN Inventory  
+	ON M.MovieID = I.MovieID
+GROUP BY Movies.MovieName
+HAVING COUNT(Inventory.TapeID) > 1;
+
+--8. Which customers rented movies for 5 days or more?
+SELECT Customer.*
+FROM Customer
+JOIN Rentals
+	ON Rentals.CustomerID = Customers.CustID
+WHERE CkoutDate >= 5;
+
+--9. Which supplier has the cheapest price for the movie "Almost Angels 1962"?
+SELECT Suppliers.*
+FROM Suppliers
+JOIN MovieSupplier
+	ON MovieSupplier.SupplierID = Suppliers.SupplierID
+JOIN Movies
+	ON Movies.MovieID = Suppliers.MovieID
+WHERE Movies.MovieName = "Almost Angels 1962"
+ORDER BY MovieSupplier.Price
+LIMIT 1;
+
+--10. Which movies aren't in the inventory?
+SELECT Movies.*
+FROM Movies
+WHERE NOT EXISTS(
+	SELECT Inventory.*
+	FROM Inventory
+	WHERE Movies.MovieID = Inventory.TapeID
+	);
+	
+-- ANOTHER 	SOLUTHION
+SELECT Movies.*
+FROM Movies
+EXCEPT
+SELECT Inventory.*
+FROM Inventory
+
